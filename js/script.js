@@ -2,105 +2,131 @@
 Treehouse Techdegree:
 FSJS project 2 - List Filter and Pagination
 ******************************************/
+document.addEventListener('DOMContentLoaded', createPagination(document.querySelector('ul.student-list').children, 1, 6));
 
-// Study guide for this project - https://drive.google.com/file/d/1OD1diUsTMdpfMDv677TfL1xO2CEkykSz/view?usp=sharing
+const searchElements = createElement('div', document.querySelector('div.page-header'), 'student-search');
+const searchInput = createElement('input', searchElements, '');
+searchInput.placeholder = 'Search for students...';
+const searchButton = createElement('button', searchElements, '');
+searchButton.textContent = 'Search';
 
-document.addEventListener('DOMContentLoaded', () => {
+function createPagination(items, startPageNumber, itemsPerPage) {
+   const pagesNumber = Math.ceil(items.length / itemsPerPage);
+   const pages = createPages(items, pagesNumber, itemsPerPage);
+   const paginationLinks = appendPageLinks(pages.parentNode, pagesNumber);
+   paginationLinks.addEventListener('click', (event) => { selectPage(event, pages.children, paginationLinks.children); });
 
-   // Global variables
-   const firstUl = document.querySelector('ul.student-list');
-   firstUl.style.display = 'none';
-   const ItemsCreated = firstUl.children;
+   showPage(startPageNumber, pages.children, paginationLinks.children);
+}
+// Create an element HTML and append it to their parent
+function createElement(nameElement, parent, nameClasse) {
+   const element = document.createElement(nameElement);
+   element.className = nameClasse;
+   parent.appendChild(element);
+   return element;
+}
+// Create a new all pages of students
+function createPages(items, pagesNumber, itemsPerPage) {
+   const div = createElement('div', items[0].parentNode.parentNode, 'js');
 
-   const div = createElement('div', firstUl.previousElementSibling, 'student-search');
-   const searchInput = createElement('input', div, '');
-         searchInput.placeholder = 'Search for students...';
-   const searchButton = createElement('button', div, '');
-         searchButton.textContent = 'Search';
-   
-   // Create an element HTML and append it to their parent
-   function createElement(nameElement, parent, nameClasse) {
-      const element = document.createElement(nameElement);
-      element.className = nameClasse;
-      parent.appendChild(element);
-      return element;
+   for (let i = 0; i < pagesNumber; i++) {
+      const itemsPage = addItemsToEachPage(items, itemsPerPage);
+      div.appendChild(itemsPage);
    }
 
-   // Create a new list of `numItems` Studens
-   function addItemsToEachPage(numItems) {
-      const ul = document.createElement('ul');
-      ul.className = 'student-list';
-      ul.style.display = 'none';
+   return div;
+}
+// Create a new list of n Studens
+function addItemsToEachPage(items, itemsPerPage) {
+   const ul = document.createElement('ul');
+   ul.className = 'student-list';
+   ul.style.display = 'none';
 
-      for (let i = 0; i < numItems; i++) {
-         if (ItemsCreated.length === 0) {
-            break;
-         }
-         ul.appendChild(ItemsCreated[0]);
+   for (let i = 0; i < itemsPerPage; i++) {
+      if (items.length === 0) {
+         break;
       }
-
-      return ul;
+      ul.appendChild(items[0]);
    }
 
-   // Changes the property of an element with a `chosenFeature` pattern
-   function showElementActive(feature, chosenFeature, element, property, valueActive, valueInactive) {
-      if (feature === chosenFeature) {
-         element[property] = valueActive;
+   return ul;
+}
+// Create the buttons to navigate by the pages
+function appendPageLinks(contain, numButtons) {//container
+   const ul = createElement('ul', contain, 'pagination');
+
+   for (let i = 0; i < numButtons;) {
+      const a = createElement('a', createElement('li', ul, ''), '');
+      a.textContent = ++i;
+   }
+   return ul;
+}
+// Display the page assigned to the button clicked
+function showPage(pageNumber, pages, paginationLinks) {
+   for (let i = 0; i < paginationLinks.length; i++) {
+      const link = paginationLinks[i].firstElementChild;
+      const currentPage = pages[i];
+      const currentPageNumber = link.textContent;
+      processPage(currentPageNumber, () => { link.className = 'active'; }, () => { link.className = ''; });
+      processPage(currentPageNumber, () => { currentPage.style.display = 'block'; }, () => { currentPage.style.display = 'none'; });
+   }
+
+   function processPage(currentPageNumber, activate, deactivate) {
+      if (currentPageNumber == pageNumber) {
+         activate();
       }
       else {
-         element[property] = valueInactive;
+         deactivate();
       }
    }
-
-   // Create pages that contain a specific number of students each
-   function createStudensPages(numItems, pageNumberToShow) {
-      const pagesNumber = Math.ceil(ItemsCreated.length / numItems);
-      const div = createElement('div', firstUl.parentNode, '');
-      
-      for (let i = 0; i < pagesNumber; i++) {
-         const page = addItemsToEachPage(numItems)
-         showElementActive(i, pageNumberToShow, page.style, 'display', 'block', 'none');
-         div.appendChild(page);
-      }
-      // Return the `Pagination`
-      return appendPageLinks(pagesNumber, pageNumberToShow);
+}
+// Point to the page of the selected button
+function selectPage(event, pages, paginationLinks) {
+   const button = event.target;
+   if (button.tagName !== 'A') {
+      return;
    }
+   showPage(button.textContent, pages, paginationLinks);
+}
 
-   //Create the buttons to navigate by the pages
-   function appendPageLinks(numButtons, pageNumberToShow) {
-      const ul = createElement('ul', firstUl.parentNode, 'pagination');
-      for (let i = 0; i < numButtons; ) {
-         const a = createElement('a', createElement('li', ul, ''), '');
-         showElementActive(i, pageNumberToShow, a, 'className', 'active', '');
-         a.textContent = ++i;
+function addMatchingItems(emptyList, items, searchValue) {
+   for (let i = 0; i < items.length; i++) {
+      const pageItems = items[i].children;
+      for (let j = 0; j < pageItems.length; j++) {
+         const nameStudent = pageItems[j].querySelector('h3').textContent;
+
+         if (nameStudent.includes(searchValue)) {
+            emptyList.appendChild(pageItems[j].cloneNode(true));
+         }
       }
-      return ul;
    }
+   return emptyList;
+}
 
-   // Display the page assigned to the button clicked
-   function showPage(activeElement, button) {
-      const studentsPages = firstUl.nextElementSibling.children;
-      const buttons = button.parentNode.children;
-
-      for(let i = 0; i < buttons.length; ) {
-         const link = buttons[i].firstElementChild;
-         const oneStudentsPage = studentsPages[i++];
-         showElementActive(link, activeElement, link, 'className', 'active', '');
-         showElementActive(link, activeElement, oneStudentsPage.style, 'display', 'block', 'none');
-      }
-      
+function searchItems() {
+   const divs = document.querySelectorAll('div.js');
+   const uls = document.querySelectorAll('ul.pagination');
+   let num = divs.length;
+   while (num > 1) {
+      divs[0].parentNode.removeChild(divs[--num]);
+      uls[0].parentNode.removeChild(uls[num]);
    }
+   const ul = document.querySelector('ul.student-list');
+   ul.style.display = 'none';
+   const items = ul.nextElementSibling;
+   items.style.display = 'none';
+   const buttons = items.nextElementSibling;
+   buttons.style.display = 'none';
+   const value = searchInput.value;
+   ul.textContent = '';
+   addMatchingItems(ul, items.children, value);
 
-   // Programma start here
-   const pagination = createStudensPages(5, 0); //(num of items per page , num of start page - 1)
-   
-   pagination.addEventListener('click', (event) => {
-      if (event.target.tagName == 'A') {
-         const element = event.target;
-         showPage(element, element.parentNode);
-      }
-   });
+   if (ul.children.length === 0) {
+      return;
+   }
+   createPagination(ul.children, 1, items.children[0].children.length);
 
+}
 
-
-});
+searchButton.addEventListener('click', searchItems);
+searchInput.addEventListener('keyup', searchItems);

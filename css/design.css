@@ -50,6 +50,19 @@ body{
     padding: 0 0 20px 0;
     border-bottom: 1px solid #eaeaea;
   }
+  .js-student-item{
+    margin: 0 0 20px 0;
+    padding: 100px;
+    text-align: center;
+    border-radius: 10px;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 50px;
+    background-image: url("../img/placeimg_940_480_grayscale_tech.jpg");
+    background-position: center;
+    background-size: cover;
+    opacity: 0.8;
+  }
 
     .student-details{
       width: 50%;
@@ -94,6 +107,8 @@ body{
     padding: 0;
     border-bottom: none;
   }
+
+  
 
 .pagination{
   margin: 40px 0 0 0;
