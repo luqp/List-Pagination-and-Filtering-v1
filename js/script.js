@@ -105,30 +105,49 @@ function selectPage(event, pages, paginationLinks) {
    }
    showPage(link.textContent, pages, paginationLinks);
 }
-
+// Verify if there are names that matching with the `searchParameter`
 function addMatchingItems(items, searchParameter) {
+   const paremeter = searchParameter.toLowerCase();
    const ul = document.createElement('ul');
 
    for (let j = 0; j < items.length; j++) {
-      const nameStudent = items[j].querySelector('h3').textContent;
+      let nameStudent = items[j].querySelector('h3').textContent;
+      nameStudent = nameStudent.toLowerCase();
 
-      if (nameStudent.includes(searchParameter)) {
+      if (nameStudent.includes(paremeter)) {
          ul.appendChild(items[j].cloneNode(true));
       }
    }
 
    return ul;
 }
-
+// Init a new search 
 function searchItems(data, searchParameter) {
-   const divs = document.querySelectorAll('div.js');
-   const uls = document.querySelectorAll('ul.pagination');
-   let num = divs.length;
-   while (num > 0) {
-      divs[0].parentNode.removeChild(divs[--num]);
-      uls[0].parentNode.removeChild(uls[num]);
+   remove('.js-not-found');
+   remove('div.js');
+   remove('ul.pagination');
+   const foundItems = addMatchingItems(data.items, searchParameter);
+
+   if (foundItems.textContent === '') {
+      notFound();
+      return;
    }
 
-   const foundItems = addMatchingItems(data.items, searchParameter);
    createPagination(data.grandParent, foundItems.children, data.startPage, data.itemsPerPage);
+
+   function remove(nameElement) {
+      const element = document.querySelectorAll(nameElement);
+      let size = element.length;
+      while (size > 0) {
+         element[0].parentNode.removeChild(element[--size]);
+      }
+   }
+
+   function notFound() {
+      const container = createElement(data.grandParent, 'div', 'js-not-found');
+      const question = createElement(container, 'h3', 'js-question');
+      question.textContent = "A NEW SEARCH TRY?";
+      const comunicate = createElement(container, 'h1', 'js-comunicate');
+      comunicate.textContent = "Found No One Student With That Search Parameter";
+   }
 }
