@@ -6,7 +6,7 @@ in HTML format and data filtering in real time as the user types
 ## Pagination:
 
 Pagination helps separate the data into pages to facilitate navigation,
-This program is flexible and allows you to change the amount of items you want to display
+this program is flexible and allows you to change the amount of items you want to display in the pages
 and choose the paging number where you want to start displaying the list.
 
 ![pagination](https://windyludev.github.io/List-Pagination-and-Filtering-v1/img/pagination.jpg)
